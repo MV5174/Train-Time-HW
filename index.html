@@ -5,16 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Train App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="http://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+        crossorigin="anonymous"></script> 
     <script type ="text/javascript" src="app.js"></script>
 </head>
-<body>
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<body><div class="jumbotron w-50 offset-xl-3">
+    <div class="container">
+        <h1 class="display-4"><strong>Train Locator</strong></h1>
+        <p class="lead">Find the next train!</p>
+    </div>
+</div>
+<div class="card w-50 offset-xl-3">
+    <h5 class="card-header">Current Train Schedules</h5>
+    <div class="card-body">
+        <table id="table" style="width:100%">
+            <tr style="border-bottom: 2px solid grey">
+                <th>Train Name</th>
+                <th>Destination</th>
+                <th>Frequency (Min)</th>
+                <th>Next Arrival</th>
+                <th>Minutes Away</th>
+            </tr>
+        </table>
+
+
+    </div>
+</div>
+<div class="card w-50 offset-xl-3">
+    <h5 class="card-header">Add Train</h5>
+    <div class="card-body">
+        <form>
+            <div class="form-group">
+                <label for="trainName">Train name</label>
+                <input type="trainName" class="form-control" id="trainName" placeholder="Enter the train">
+            </div>
+
+            <div class="form-group">
+                <label for="dest">Destination</label>
+                <input type="trainDest" class="form-control" id="trainDest" placeholder="Destination">
+            </div>
+            <div class="form-group">
+                <label for="time">First Train Time (HH:mm - Miltary Time)</label>
+                <input type="freq" class="form-control" id="time" placeholder="HH:mm">
+            </div>
+            <div class="form-group">
+                <label for="freq">Frequency (Min)</label>
+                <input type="freq" class="form-control" id="freq" placeholder="25">
+            </div>
+            <button type="submit" id="addData" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+   
+<!--Moment.js-->
+<script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
 <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-database.js"></script>
 
 <script>
-  
+    //Firebase Config
+    var firebaseConfig = {
+  apiKey: "AIzaSyAOn2cm3l005arGIY2DBX6Ccirw-5o6lHI",
+  authDomain: "test-project-e55be.firebaseapp.com",
+  databaseURL: "https://test-project-e55be.firebaseio.com",
+  projectId: "test-project-e55be",
+  storageBucket: "",
+  messagingSenderId: "31934415382",
+  appId: "1:31934415382:web:a3b0c0e083f23646"
+};
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+var database = firebase.database();
+
+$(document).ready(function () {
+    var name;
+    var dest;
+    var time;
+    var freq;
+
+    $("#addData").on("click", function (event) {
+        event.preventDefault();
+        name = $("#trainName").val().trim();
+        dest = $("#trainDest").val().trim();
+        time = $("#time").val().trim();
+        freq = $("#freq").val().trim();
+        console.log(name);
+
+        newTrain = {
+            name: name,
+            dest: dest,
+            time: moment(time, "HH:mm").format("hh:mm a"),
+            freq: freq
+        }
+        database.ref().push(newTrain);
+        console.log(newTrain);
+
+    })
+database.ref().on("child_added", function(snapshot){
+    console.log(snapshot.val());
+    console.log(snapshot.val().name);
+    console.log(snapshot.val().dest);
+    console.log(snapshot.val().time);
+    console.log(snapshot.val().freq);
+//change the html
+var convTime = moment(time, "HH:mm").format("hh:mm a");
+var r1 = moment().diff(moment(convTime), "minutes");
+console.log(r1);
+var remainder = r1 % freq;
+var r2 = freq - remainder;
+console.log(r2);
+
+var tr = $("<tr>");
+
+var tdName = $("<td>").text(snapshot.val().name);
+var tdDest = $("<td>").text(snapshot.val().dest);
+var tdFreq = $("<td>").text(snapshot.val().freq);
+var tdTime = $("<td>").text(snapshot.val().time);
+
+
+tr.append(tdName).append(tdDest).append(tdFreq).append(tdTime);
+
+$("#table").append(tr);
+})
+
+})
   
 </script>
 </body>
