@@ -114,22 +114,25 @@ database.ref().on("child_added", function(snapshot){
     console.log(snapshot.val().time);
     console.log(snapshot.val().freq);
 //change the html
-var convTime = moment(time, "HH:mm").format("hh:mm a");
-var r1 = moment().diff(moment(convTime), "minutes");
+// var convTime = moment(time, "HH:mm").format("hh:mm a");
+var r1 = moment().diff(moment(snapshot.val().time, "HH:mm"), "minutes");
 console.log(r1);
-var remainder = r1 % freq;
-var r2 = freq - remainder;
-console.log(r2);
+var remainder = r1 % snapshot.val().freq;
+var minutesAway = snapshot.val().freq - remainder;
+console.log(minutesAway);
+var nextArrival = moment().add(minutesAway, "minutes");
+console.log(moment(nextArrival).format("hh:mm"));
 
 var tr = $("<tr>");
 
 var tdName = $("<td>").text(snapshot.val().name);
 var tdDest = $("<td>").text(snapshot.val().dest);
 var tdFreq = $("<td>").text(snapshot.val().freq);
-var tdTime = $("<td>").text(snapshot.val().time);
+var tdTime = $("<td>").text(moment(nextArrival).format("hh:mm a"));
+var tdMin = $("<td>").text(minutesAway + " min");
 
 
-tr.append(tdName).append(tdDest).append(tdFreq).append(tdTime);
+tr.append(tdName).append(tdDest).append(tdFreq).append(tdTime).append(tdMin);
 
 $("#table").append(tr);
 })
